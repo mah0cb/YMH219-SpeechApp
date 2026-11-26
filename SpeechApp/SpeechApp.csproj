@@ -9,4 +9,8 @@
     <RootNamespace>SpeechApp</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Speech" Version="11.0.0" />
+  </ItemGroup>
+
 </Project>
