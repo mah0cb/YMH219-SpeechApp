@@ -24,16 +24,25 @@ partial class AnaForm
         btnDuraklat = new Button();
         btnDurdur = new Button();
         btnTemizle = new Button();
+        tabKonusma = new TabPage();
+        lblTaniyici = new Label();
+        cmbTaniyici = new ComboBox();
+        btnDinle = new Button();
+        btnDinlemeyiDurdur = new Button();
+        btnMetniTemizle = new Button();
+        rtbTaninan = new RichTextBox();
         stsDurum = new StatusStrip();
         lblDurum = new ToolStripStatusLabel();
         tabAna.SuspendLayout();
         tabSesliOkuma.SuspendLayout();
+        tabKonusma.SuspendLayout();
         stsDurum.SuspendLayout();
         SuspendLayout();
         //
         // tabAna
         //
         tabAna.Controls.Add(tabSesliOkuma);
+        tabAna.Controls.Add(tabKonusma);
         tabAna.Dock = DockStyle.Fill;
         tabAna.Location = new Point(0, 0);
         tabAna.Name = "tabAna";
@@ -109,6 +118,79 @@ partial class AnaForm
         btnTemizle.Text = "Temizle";
         btnTemizle.UseVisualStyleBackColor = true;
         btnTemizle.Click += btnTemizle_Click;
+        // 
+        // tabKonusma
+        // 
+        tabKonusma.Controls.Add(lblTaniyici);
+        tabKonusma.Controls.Add(cmbTaniyici);
+        tabKonusma.Controls.Add(btnDinle);
+        tabKonusma.Controls.Add(btnDinlemeyiDurdur);
+        tabKonusma.Controls.Add(btnMetniTemizle);
+        tabKonusma.Controls.Add(rtbTaninan);
+        tabKonusma.Location = new Point(4, 24);
+        tabKonusma.Name = "tabKonusma";
+        tabKonusma.Padding = new Padding(3);
+        tabKonusma.Size = new Size(752, 470);
+        tabKonusma.TabIndex = 1;
+        tabKonusma.Text = "Konuşmayı Metne Çevir";
+        tabKonusma.UseVisualStyleBackColor = true;
+        // 
+        // lblTaniyici
+        // 
+        lblTaniyici.AutoSize = true;
+        lblTaniyici.Location = new Point(12, 17);
+        lblTaniyici.Name = "lblTaniyici";
+        lblTaniyici.Size = new Size(52, 15);
+        lblTaniyici.TabIndex = 0;
+        lblTaniyici.Text = "Tanıyıcı:";
+        // 
+        // cmbTaniyici
+        // 
+        cmbTaniyici.DropDownStyle = ComboBoxStyle.DropDownList;
+        cmbTaniyici.Location = new Point(80, 13);
+        cmbTaniyici.Name = "cmbTaniyici";
+        cmbTaniyici.Size = new Size(300, 23);
+        cmbTaniyici.TabIndex = 1;
+        // 
+        // btnDinle
+        // 
+        btnDinle.Location = new Point(390, 10);
+        btnDinle.Name = "btnDinle";
+        btnDinle.Size = new Size(130, 30);
+        btnDinle.TabIndex = 2;
+        btnDinle.Text = "Dinlemeye Başla";
+        btnDinle.UseVisualStyleBackColor = true;
+        btnDinle.Click += btnDinle_Click;
+        // 
+        // btnDinlemeyiDurdur
+        // 
+        btnDinlemeyiDurdur.Location = new Point(526, 10);
+        btnDinlemeyiDurdur.Name = "btnDinlemeyiDurdur";
+        btnDinlemeyiDurdur.Size = new Size(100, 30);
+        btnDinlemeyiDurdur.TabIndex = 3;
+        btnDinlemeyiDurdur.Text = "Durdur";
+        btnDinlemeyiDurdur.UseVisualStyleBackColor = true;
+        btnDinlemeyiDurdur.Click += btnDinlemeyiDurdur_Click;
+        // 
+        // btnMetniTemizle
+        // 
+        btnMetniTemizle.Location = new Point(632, 10);
+        btnMetniTemizle.Name = "btnMetniTemizle";
+        btnMetniTemizle.Size = new Size(100, 30);
+        btnMetniTemizle.TabIndex = 4;
+        btnMetniTemizle.Text = "Temizle";
+        btnMetniTemizle.UseVisualStyleBackColor = true;
+        btnMetniTemizle.Click += btnMetniTemizle_Click;
+        // 
+        // rtbTaninan
+        // 
+        rtbTaninan.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        rtbTaninan.Font = new Font("Segoe UI", 11F);
+        rtbTaninan.Location = new Point(12, 72);
+        rtbTaninan.Name = "rtbTaninan";
+        rtbTaninan.Size = new Size(728, 386);
+        rtbTaninan.TabIndex = 6;
+        rtbTaninan.Text = "";
         //
         // stsDurum
         //
@@ -140,6 +222,8 @@ partial class AnaForm
         Load += AnaForm_Load;
         tabAna.ResumeLayout(false);
         tabSesliOkuma.ResumeLayout(false);
+        tabKonusma.ResumeLayout(false);
+        tabKonusma.PerformLayout();
         stsDurum.ResumeLayout(false);
         stsDurum.PerformLayout();
         ResumeLayout(false);
@@ -155,6 +239,13 @@ partial class AnaForm
     private Button btnDuraklat;
     private Button btnDurdur;
     private Button btnTemizle;
+    private TabPage tabKonusma;
+    private Label lblTaniyici;
+    private ComboBox cmbTaniyici;
+    private Button btnDinle;
+    private Button btnDinlemeyiDurdur;
+    private Button btnMetniTemizle;
+    private RichTextBox rtbTaninan;
     private StatusStrip stsDurum;
     private ToolStripStatusLabel lblDurum;
 }

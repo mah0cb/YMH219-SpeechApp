@@ -7,6 +7,7 @@ namespace SpeechApp.Forms;
 public partial class AnaForm : Form
 {
     private ITextToSpeechService? _tts;
+    private List<ISpeechToTextService> _sttServices = new();
 
     public AnaForm()
     {
@@ -26,6 +27,64 @@ public partial class AnaForm : Form
             ShowError("Sesli okuma başlatılamadı. Hoparlör veya ses aygıtı bulunamadı.\n\nAyrıntı: " + ex.Message);
         }
         ShowTtsStatus(SpeechStatus.Bosta);
+        LoadSpeechToTextServices();
+    }
+
+    private void LoadSpeechToTextServices()
+    {
+        _sttServices = SpeechToTextProviders.GetAll();
+        foreach (var service in _sttServices)
+        {
+            service.SpeechRecognized += (_, text) => RunOnUi(() => AddRecognizedText(text));
+            service.ErrorOccurred += (_, message) => RunOnUi(() => { ShowSttState(); ShowError(message); });
+        }
+        cmbTaniyici.DisplayMember = nameof(ISpeechToTextService.Name);
+        cmbTaniyici.DataSource = _sttServices;
+        ShowSttState();
+    }
+
+    private ISpeechToTextService? SelectedStt => cmbTaniyici.SelectedItem as ISpeechToTextService;
+
+    private void btnDinle_Click(object? sender, EventArgs e)
+    {
+        if (SelectedStt == null) return;
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            SelectedStt.Start();
+        }
+        catch (Exception ex)
+        {
+            ShowError("Dinleme başlatılamadı: " + ex.Message);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+        ShowSttState();
+    }
+
+    private void btnDinlemeyiDurdur_Click(object? sender, EventArgs e)
+    {
+        SelectedStt?.Stop();
+        ShowSttState();
+    }
+
+    private void btnMetniTemizle_Click(object? sender, EventArgs e) => rtbTaninan.Clear();
+
+    private void AddRecognizedText(string text)
+    {
+        rtbTaninan.AppendText(text + " ");
+        rtbTaninan.ScrollToCaret();
+    }
+
+    private void ShowSttState()
+    {
+        bool listening = SelectedStt?.IsListening == true;
+        btnDinle.Enabled = SelectedStt != null && !listening;
+        btnDinlemeyiDurdur.Enabled = listening;
+        cmbTaniyici.Enabled = !listening;
+        RefreshStatus();
     }
 
     private void btnOku_Click(object? sender, EventArgs e)
@@ -65,7 +124,7 @@ public partial class AnaForm : Form
 
     private void ShowTtsStatus(SpeechStatus status)
     {
-        ShowStatus(status);
+        RefreshStatus();
         bool ready = _tts != null;
         btnOku.Enabled = ready;
         btnDuraklat.Enabled = status != SpeechStatus.Bosta;
@@ -73,7 +132,14 @@ public partial class AnaForm : Form
         btnDurdur.Enabled = status != SpeechStatus.Bosta;
     }
 
-    private void ShowStatus(SpeechStatus status) => lblDurum.Text = "Durum: " + status.ToDisplayText();
+    /// <summary>Okuma sürüyorsa onu, yoksa dinleme durumunu durum çubuğunda gösterir.</summary>
+    private void RefreshStatus()
+    {
+        var status = _tts?.Status ?? SpeechStatus.Bosta;
+        if (status == SpeechStatus.Bosta && SelectedStt?.IsListening == true)
+            status = SpeechStatus.Dinleniyor;
+        lblDurum.Text = "Durum: " + status.ToDisplayText();
+    }
 
     private void ShowError(string message) =>
         MessageBox.Show(message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -90,5 +156,7 @@ public partial class AnaForm : Form
     private void AnaForm_FormClosed(object? sender, FormClosedEventArgs e)
     {
         _tts?.Dispose();
+        foreach (var service in _sttServices)
+            service.Dispose();
     }
 }
