@@ -32,16 +32,33 @@ public sealed class VoskSttService : ISpeechToTextService
 
     public bool IsListening { get; private set; }
 
+    public bool IsModelAvailable => File.Exists(Path.Combine(_modelPath, "final.mdl"));
+
+    public static bool IsMicrophoneAvailable => WaveIn.DeviceCount > 0;
+
     public void Start()
     {
         if (IsListening) return;
+        if (!IsMicrophoneAvailable)
+            throw new SpeechServiceException(
+                "Mikrofon bulunamadı. Bir mikrofon takın ve Windows Ses ayarlarında etkin olduğundan emin olun.");
         BeginRecognition();
 
-        _waveIn = new WaveIn { WaveFormat = new WaveFormat(SampleRate, 16, 1), BufferMilliseconds = 100 };
-        _waveIn.DataAvailable += (_, e) => ProcessAudio(e.Buffer, e.BytesRecorded);
-        _waveIn.RecordingStopped += WaveIn_RecordingStopped;
-        _waveIn.StartRecording();
-        IsListening = true;
+        try
+        {
+            _waveIn = new WaveIn { WaveFormat = new WaveFormat(SampleRate, 16, 1), BufferMilliseconds = 100 };
+            _waveIn.DataAvailable += (_, e) => ProcessAudio(e.Buffer, e.BytesRecorded);
+            _waveIn.RecordingStopped += WaveIn_RecordingStopped;
+            _waveIn.StartRecording();
+            IsListening = true;
+        }
+        catch (Exception ex)
+        {
+            _waveIn?.Dispose();
+            _waveIn = null;
+            throw new SpeechServiceException(
+                "Mikrofon açılamadı. Başka bir uygulama kullanıyor olabilir ya da Windows mikrofon izni kapalı olabilir.\n\nAyrıntı: " + ex.Message, ex);
+        }
     }
 
     public void Stop()
@@ -54,7 +71,17 @@ public sealed class VoskSttService : ISpeechToTextService
     /// <summary>Modeli (ilk seferde) yükler ve yeni bir tanıyıcı oluşturur.</summary>
     public void BeginRecognition()
     {
-        _model ??= new Model(_modelPath);
+        if (!IsModelAvailable)
+            throw new SpeechServiceException(
+                $"Vosk Türkçe modeli bulunamadı.\n\nModeli README'deki bağlantıdan indirip şu klasöre açın:\n{_modelPath}");
+        try
+        {
+            _model ??= new Model(_modelPath);
+        }
+        catch (Exception ex)
+        {
+            throw new SpeechServiceException("Vosk modeli yüklenemedi, dosyalar bozuk olabilir.\n\nAyrıntı: " + ex.Message, ex);
+        }
         lock (_lock)
         {
             _recognizer?.Dispose();

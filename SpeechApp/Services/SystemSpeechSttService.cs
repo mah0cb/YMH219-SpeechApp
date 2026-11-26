@@ -23,10 +23,24 @@ public sealed class SystemSpeechSttService : ISpeechToTextService
     public void Start()
     {
         if (IsListening) return;
-        _engine ??= CreateEngine();
-        _engine.SetInputToDefaultAudioDevice();
-        _engine.RecognizeAsync(RecognizeMode.Multiple);
-        IsListening = true;
+        try
+        {
+            _engine ??= CreateEngine();
+        }
+        catch (Exception ex)
+        {
+            throw new SpeechServiceException("Konuşma tanıyıcısı başlatılamadı. Windows konuşma dil paketi eksik olabilir.\n\nAyrıntı: " + ex.Message, ex);
+        }
+        try
+        {
+            _engine.SetInputToDefaultAudioDevice();
+            _engine.RecognizeAsync(RecognizeMode.Multiple);
+            IsListening = true;
+        }
+        catch (Exception ex)
+        {
+            throw new SpeechServiceException("Mikrofon bulunamadı veya kullanılamıyor. Bir mikrofon takın ve Windows Ses ayarlarında varsayılan kayıt aygıtı olarak seçin.\n\nAyrıntı: " + ex.Message, ex);
+        }
     }
 
     public void Stop()

@@ -31,6 +31,7 @@ partial class AnaForm
         btnDinlemeyiDurdur = new Button();
         btnMetniTemizle = new Button();
         rtbTaninan = new RichTextBox();
+        lblTaniyiciBilgi = new Label();
         stsDurum = new StatusStrip();
         lblDurum = new ToolStripStatusLabel();
         tabAna.SuspendLayout();
@@ -127,6 +128,7 @@ partial class AnaForm
         tabKonusma.Controls.Add(btnDinlemeyiDurdur);
         tabKonusma.Controls.Add(btnMetniTemizle);
         tabKonusma.Controls.Add(rtbTaninan);
+        tabKonusma.Controls.Add(lblTaniyiciBilgi);
         tabKonusma.Location = new Point(4, 24);
         tabKonusma.Name = "tabKonusma";
         tabKonusma.Padding = new Padding(3);
@@ -191,6 +193,15 @@ partial class AnaForm
         rtbTaninan.Size = new Size(728, 386);
         rtbTaninan.TabIndex = 6;
         rtbTaninan.Text = "";
+        // 
+        // lblTaniyiciBilgi
+        // 
+        lblTaniyiciBilgi.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+        lblTaniyiciBilgi.ForeColor = Color.DarkRed;
+        lblTaniyiciBilgi.Location = new Point(12, 46);
+        lblTaniyiciBilgi.Name = "lblTaniyiciBilgi";
+        lblTaniyiciBilgi.Size = new Size(728, 20);
+        lblTaniyiciBilgi.TabIndex = 5;
         //
         // stsDurum
         //
@@ -246,6 +257,7 @@ partial class AnaForm
     private Button btnDinlemeyiDurdur;
     private Button btnMetniTemizle;
     private RichTextBox rtbTaninan;
+    private Label lblTaniyiciBilgi;
     private StatusStrip stsDurum;
     private ToolStripStatusLabel lblDurum;
 }

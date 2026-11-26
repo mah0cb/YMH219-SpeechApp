@@ -26,6 +26,8 @@ public partial class AnaForm : Form
         {
             ShowError("Sesli okuma başlatılamadı. Hoparlör veya ses aygıtı bulunamadı.\n\nAyrıntı: " + ex.Message);
         }
+        if (_tts?.VoiceNames.Count == 0)
+            ShowError("Bilgisayarda yüklü bir okuma sesi bulunamadı. Windows Ayarlar > Saat ve dil > Konuşma bölümünden ses ekleyin.");
         ShowTtsStatus(SpeechStatus.Bosta);
         LoadSpeechToTextServices();
     }
@@ -52,6 +54,10 @@ public partial class AnaForm : Form
         try
         {
             SelectedStt.Start();
+        }
+        catch (SpeechServiceException ex)
+        {
+            ShowError(ex.Message);
         }
         catch (Exception ex)
         {
@@ -84,12 +90,17 @@ public partial class AnaForm : Form
         btnDinle.Enabled = SelectedStt != null && !listening;
         btnDinlemeyiDurdur.Enabled = listening;
         cmbTaniyici.Enabled = !listening;
+        lblTaniyiciBilgi.Text = SpeechToTextProviders.GetWarnings(_sttServices);
         RefreshStatus();
     }
 
     private void btnOku_Click(object? sender, EventArgs e)
     {
-        if (_tts == null) return;
+        if (_tts == null)
+        {
+            ShowError("Sesli okuma kullanılamıyor: ses aygıtı başlatılamadı.");
+            return;
+        }
         if (string.IsNullOrWhiteSpace(rtbMetin.Text))
         {
             MessageBox.Show("Okunacak metin yok. Önce metin alanına bir şeyler yazın.", "Bilgi",
