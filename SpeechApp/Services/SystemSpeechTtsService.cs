@@ -29,7 +29,7 @@ public sealed class SystemSpeechTtsService : ITextToSpeechService
     }
 
     public IReadOnlyList<string> VoiceNames =>
-        _synthesizer.GetInstalledVoices().Where(v => v.Enabled).Select(v => v.VoiceInfo.Name).ToList();
+        _synthesizer.GetInstalledVoices().Where(v => v.Enabled).Select(v => v.VoiceInfo.Name).OfType<string>().ToList();
 
     public void SelectVoice(string voiceName) => _synthesizer.SelectVoice(voiceName);
 
