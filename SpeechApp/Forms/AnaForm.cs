@@ -28,6 +28,12 @@ public partial class AnaForm : Form
         }
         if (_tts?.VoiceNames.Count == 0)
             ShowError("Bilgisayarda yüklü bir okuma sesi bulunamadı. Windows Ayarlar > Saat ve dil > Konuşma bölümünden ses ekleyin.");
+        if (_tts != null)
+        {
+            cmbSes.DataSource = _tts.VoiceNames;
+            trkHiz.Value = _tts.Rate;
+            lblHizDegeri.Text = _tts.Rate.ToString();
+        }
         ShowTtsStatus(SpeechStatus.Bosta);
         LoadSpeechToTextServices();
     }
@@ -76,12 +82,71 @@ public partial class AnaForm : Form
         ShowSttState();
     }
 
-    private void btnMetniTemizle_Click(object? sender, EventArgs e) => rtbTaninan.Clear();
+    private void btnMetniTemizle_Click(object? sender, EventArgs e)
+    {
+        rtbTaninan.Clear();
+        lstCumleler.Items.Clear();
+    }
 
     private void AddRecognizedText(string text)
     {
         rtbTaninan.AppendText(text + " ");
         rtbTaninan.ScrollToCaret();
+        lstCumleler.Items.Add(new RecognizedSentence(DateTime.Now, text));
+        lstCumleler.TopIndex = lstCumleler.Items.Count - 1;
+    }
+
+    /// <summary>Seçilen ses bir sonraki okumada kullanılır.</summary>
+    private void cmbSes_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_tts == null || cmbSes.SelectedItem is not string voiceName) return;
+        try
+        {
+            _tts.SelectVoice(voiceName);
+        }
+        catch (Exception ex)
+        {
+            ShowError($"\"{voiceName}\" sesi seçilemedi: " + ex.Message);
+        }
+    }
+
+    private void trkHiz_Scroll(object? sender, EventArgs e)
+    {
+        if (_tts == null) return;
+        _tts.Rate = trkHiz.Value;
+        lblHizDegeri.Text = trkHiz.Value.ToString();
+    }
+
+    private void btnKaydet_Click(object? sender, EventArgs e) => SaveText(rtbMetin.Text, "metin.txt");
+
+    private void btnTaninaniKaydet_Click(object? sender, EventArgs e)
+    {
+        var lines = lstCumleler.Items.Cast<RecognizedSentence>().Select(s => s.ToString());
+        SaveText(string.Join(Environment.NewLine, lines), "taninan_cumleler.txt");
+    }
+
+    private void SaveText(string text, string defaultFileName)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            MessageBox.Show("Kaydedilecek metin yok.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+        using var dialog = new SaveFileDialog
+        {
+            Filter = "Metin dosyası (*.txt)|*.txt",
+            FileName = defaultFileName
+        };
+        if (dialog.ShowDialog(this) != DialogResult.OK) return;
+        try
+        {
+            File.WriteAllText(dialog.FileName, text);
+            lblDurum.Text = "Kaydedildi: " + dialog.FileName;
+        }
+        catch (Exception ex)
+        {
+            ShowError("Dosya kaydedilemedi: " + ex.Message);
+        }
     }
 
     private void ShowSttState()
